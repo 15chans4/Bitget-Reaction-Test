@@ -105,6 +105,23 @@
       color: var(--bg-color);
     }
 
+    .restart-btn {
+      margin-top: 1.5rem;
+      padding: 0.8rem 2rem;
+      font-size: 1.2rem;
+      background-color: var(--button-bg);
+      color: var(--text-color);
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      display: none;
+      transition: background 0.3s ease;
+    }
+
+    .restart-btn:hover {
+      background-color: var(--button-hover);
+    }
+
     .history {
       max-width: 500px;
       width: 100%;
@@ -142,6 +159,7 @@
     <div class="click-fill-container" id="clickFillContainer">
       <div class="click-fill-bar" id="clickFillBar"></div>
     </div>
+    <button class="restart-btn" id="restartBtn">🔁 Restart</button>
   </div>
 
   <div class="history" id="history">
@@ -157,6 +175,7 @@
     const progressContainer = document.getElementById("progressContainer");
     const clickFillBar = document.getElementById("clickFillBar");
     const clickFillContainer = document.getElementById("clickFillContainer");
+    const restartBtn = document.getElementById("restartBtn");
 
     let startTime;
     let timeout;
@@ -210,6 +229,7 @@
       message.textContent = "Click anywhere to begin the reaction test";
       document.body.style.backgroundColor = "";
       clickable = true;
+      restartBtn.style.display = "none";
     }
 
     function updateHistory(average) {
@@ -228,9 +248,11 @@
       function animate(time) {
         const progress = Math.min((time - start) / duration, 1);
         const value = Math.floor(progress * finalValue);
-        message.textContent = `Done! Average: ${value} ms\nClick to restart`;
+        message.textContent = `Done! Average: ${value} ms`;
         if (progress < 1) {
           requestAnimationFrame(animate);
+        } else {
+          restartBtn.style.display = "inline-block";
         }
       }
 
@@ -238,7 +260,7 @@
     }
 
     function handleClickAnywhere() {
-      if (!clickable) return;
+      if (!clickable || tries === 3) return;
 
       if (document.body.style.backgroundColor === "rgb(0, 224, 184)") {
         const reactionTime = Date.now() - startTime;
@@ -257,8 +279,6 @@
         clickable = false;
         clickFillContainer.style.display = "none";
         clickFillBar.style.width = "0%";
-      } else if (tries === 3) {
-        resetGame();
       } else if (waitingForGreen) {
         clearTimeout(timeout);
         waitingForGreen = false;
@@ -282,6 +302,8 @@
       const isLight = document.body.classList.contains("light");
       themeBtn.textContent = isLight ? "🌙 Dark Mode" : "☀️ Light Mode";
     });
+
+    restartBtn.addEventListener("click", resetGame);
   </script>
 </body>
 </html>
